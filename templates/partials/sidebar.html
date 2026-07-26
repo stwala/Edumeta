@@ -1,0 +1,42 @@
+<aside class="sidebar" id="sidebar">
+  <div class="sidebar-brand">
+    <span class="sidebar-logo" aria-hidden="true">E</span>
+    <div class="sidebar-brand-text">
+      <strong>{{ school_name }}</strong>
+      <span class="sidebar-tenant-hint">Tenant workspace</span>
+    </div>
+  </div>
+  <nav class="sidebar-nav" aria-label="Main">
+    {% for item in nav_items %}
+      <div class="nav-group">
+        <a href="{% url item.url_name %}"
+           class="nav-link{% if item.section == active_section %} is-active{% endif %}"
+           {% if item.section == active_section %}aria-current="page"{% endif %}>
+          <span class="nav-icon" aria-hidden="true">
+            {% if item.icon == "dashboard" %}{% include "partials/icons/dashboard.svg.html" %}
+            {% elif item.icon == "academics" %}{% include "partials/icons/academics.svg.html" %}
+            {% elif item.icon == "people" %}{% include "partials/icons/people.svg.html" %}
+            {% elif item.icon == "attendance" %}{% include "partials/icons/attendance.svg.html" %}
+            {% elif item.icon == "finance" %}{% include "partials/icons/finance.svg.html" %}
+            {% endif %}
+          </span>
+          <span>{{ item.label }}</span>
+        </a>
+        {% if item.children and item.section == active_section %}
+          <ul class="nav-sub">
+            {% for child in item.children %}
+              <li>
+                <a href="{% url child.url_name %}" class="nav-sublink">{{ child.label }}</a>
+              </li>
+            {% endfor %}
+          </ul>
+        {% endif %}
+      </div>
+    {% empty %}
+      <p class="nav-empty">Sign in to see navigation.</p>
+    {% endfor %}
+  </nav>
+  <div class="sidebar-footer">
+    <a href="{% url 'admin:index' %}" class="nav-link nav-link-muted">Administration</a>
+  </div>
+</aside>

@@ -1,0 +1,153 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="report-layout">
+  <section class="panel report-preview">
+    <div class="report-paper">
+      <div class="report-heading">
+        <span>{{ school_name }}</span>
+        <h2>{{ report_template.title }}</h2>
+        <p>{{ report_template.intro_text }}</p>
+      </div>
+      <div class="report-rules">
+        {% if report_template.show_attendance %}<span>Attendance included</span>{% endif %}
+        {% if report_template.show_work_habits %}<span>Work habits included</span>{% endif %}
+        {% if report_template.show_social_habits %}<span>Social habits included</span>{% endif %}
+      </div>
+      <p class="text-muted">{{ report_template.grading_scale_notes }}</p>
+      <small>{{ report_template.footer_note }}</small>
+    </div>
+  </section>
+
+  {% if user.is_admin %}
+    <section class="panel">
+      <div class="panel-header">
+        <div>
+          <h2>School report template</h2>
+          <p class="text-muted">These settings live in this tenant only.</p>
+        </div>
+      </div>
+      <form method="post" class="form-grid">
+        {% csrf_token %}
+        <input type="hidden" name="action" value="save_template">
+        {% for field in template_form %}
+          <label class="{% if field.field.widget.input_type == 'checkbox' %}check-field{% else %}field{% endif %}">
+            {{ field.label }}
+            {{ field }}
+          </label>
+        {% endfor %}
+        <button class="btn btn-primary" type="submit">Save template</button>
+      </form>
+    </section>
+  {% endif %}
+</div>
+
+{% if user.is_admin or user.is_teacher %}
+  <section class="panel">
+    <div class="panel-header">
+      <div>
+        <h2>Grade entry</h2>
+        <p class="text-muted">Teachers can enter marks only for assigned classes.</p>
+      </div>
+    </div>
+
+    <form method="get" class="toolbar-form">
+      <label>Class {{ filter_form.student_class }}</label>
+      <label>Subject {{ filter_form.subject }}</label>
+      <label>Session {{ filter_form.session }}</label>
+      <label>Term {{ filter_form.term }}</label>
+      <button class="btn btn-ghost" type="submit">Load students</button>
+    </form>
+
+    {% if grade_rows %}
+      <form method="post" class="stacked-section">
+        {% csrf_token %}
+        <input type="hidden" name="action" value="save_grades">
+        <input type="hidden" name="student_class" value="{{ filter_form.cleaned_data.student_class.id }}">
+        <input type="hidden" name="subject" value="{{ filter_form.cleaned_data.subject.id }}">
+        <input type="hidden" name="session" value="{{ filter_form.cleaned_data.session.id }}">
+        <input type="hidden" name="term" value="{{ filter_form.cleaned_data.term.id }}">
+        <div class="table-wrap">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Student</th>
+                <th>Admission no.</th>
+                <th>Test</th>
+                <th>Exam</th>
+                <th>Total</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for row in grade_rows %}
+                <tr>
+                  <td>
+                    <strong>{{ row.student.user.get_full_name|default:row.student.user.username }}</strong>
+                    <span>{{ row.student.student_class }}</span>
+                  </td>
+                  <td>{{ row.student.admission_no }}</td>
+                  <td><input type="number" name="test_score_{{ row.student.id }}" min="0" max="100" value="{{ row.grade.test_score|default:0 }}"></td>
+                  <td><input type="number" name="exam_score_{{ row.student.id }}" min="0" max="100" value="{{ row.grade.exam_score|default:0 }}"></td>
+                  <td>{% if row.grade %}{{ row.grade.total_score }}%{% else %}-{% endif %}</td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+        <button class="btn btn-primary" type="submit">Save grades</button>
+      </form>
+    {% endif %}
+  </section>
+{% else %}
+  <section class="panel">
+    <div class="panel-header">
+      <div>
+        <h2>Grades</h2>
+        <p class="text-muted">Grades and attendance for students linked to your account.</p>
+      </div>
+    </div>
+
+    <div class="table-wrap">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Student</th>
+            <th>Subject</th>
+            <th>Session</th>
+            <th>Term</th>
+            <th>Total</th>
+            <th>Grade</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for grade in visible_grades %}
+            <tr>
+              <td>{{ grade.student.user.get_full_name|default:grade.student.user.username }}</td>
+              <td>{{ grade.subject }}</td>
+              <td>{{ grade.session }}</td>
+              <td>{{ grade.term }}</td>
+              <td>{{ grade.total_score }}%</td>
+              <td><span class="status-pill success">{{ grade.grade_letter }}</span></td>
+            </tr>
+          {% empty %}
+            <tr>
+              <td colspan="6" class="empty-cell">No visible grades are available yet.</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+
+    {% if attendance_summary %}
+      <div class="summary-strip">
+        {% for item in attendance_summary %}
+          <article>
+            <strong>{{ item.student.user.get_full_name|default:item.student.user.username }}</strong>
+            <span>Present {{ item.present }} - Late {{ item.late }} - Absent {{ item.absent }}</span>
+          </article>
+        {% endfor %}
+      </div>
+    {% endif %}
+  </section>
+{% endif %}
+{% endblock %}

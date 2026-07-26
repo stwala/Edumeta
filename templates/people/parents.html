@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+
+{% block content %}
+<section class="panel">
+  <div class="panel-header split">
+    <div>
+      <h2>Parents</h2>
+      <p class="text-muted">Parent accounts linked to students you can access.</p>
+    </div>
+    {% if user.is_admin %}
+      <a class="btn btn-primary" href="{% url 'admin:people_parent_add' %}">Link parent</a>
+    {% endif %}
+  </div>
+
+  <div class="table-wrap">
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Relation</th>
+          <th>Students</th>
+          <th>Occupation</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for parent in parents %}
+          <tr>
+            <td>
+              <strong>{{ parent.user.get_full_name|default:parent.user.username }}</strong>
+              <span>{{ parent.user.email }}</span>
+            </td>
+            <td>{{ parent.get_relation_display }}</td>
+            <td>
+              {% for student in parent.students.all %}
+                <span class="mini-chip">{{ student.user.get_full_name|default:student.admission_no }}</span>
+              {% empty %}
+                <span class="text-muted">No linked students</span>
+              {% endfor %}
+            </td>
+            <td>{{ parent.occupation|default:"-" }}</td>
+          </tr>
+        {% empty %}
+          <tr>
+            <td colspan="4" class="empty-cell">No parent records match your access.</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</section>
+{% endblock %}

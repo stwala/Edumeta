@@ -1,0 +1,22 @@
+<header class="app-header">
+  <button type="button" class="btn-icon sidebar-toggle" data-sidebar-toggle aria-label="Toggle navigation">
+    <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
+  </button>
+  <div class="header-title">
+    <h1>{{ page_title|default:"Dashboard" }}</h1>
+  </div>
+  <div class="header-actions">
+    {% if user.is_authenticated %}
+      <div class="user-chip">
+        <span class="user-name">{{ user.get_full_name|default:user.username }}</span>
+        <span class="user-role">{{ user.get_role_display }}</span>
+      </div>
+      <form method="post" action="{% url 'accounts:logout' %}" class="logout-form">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-ghost btn-sm">Sign out</button>
+      </form>
+    {% else %}
+      <a href="{% url 'accounts:login' %}" class="btn btn-primary btn-sm">Sign in</a>
+    {% endif %}
+  </div>
+</header>

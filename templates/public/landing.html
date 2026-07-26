@@ -1,0 +1,27 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>EduMeta · Multi-tenant school platform</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,600;0,9..40,700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{% static 'css/main.css' %}">
+</head>
+<body class="public-body">
+  <header class="public-header">
+    <span class="public-logo">EduMeta</span>
+    <a href="{% url 'admin:index' %}" class="btn btn-ghost btn-sm">Platform admin</a>
+  </header>
+  <main class="public-hero">
+    <h1>One platform, many schools</h1>
+    <p>Each school runs on its own subdomain and PostgreSQL schema. Visit your school’s domain to sign in to that tenant’s workspace.</p>
+    <ul class="public-list">
+      <li>Public schema — this page (tenant registry & platform tools)</li>
+      <li>Tenant schema — dashboard, academics, people, attendance, finance</li>
+    </ul>
+  </main>
+</body>
+</html>

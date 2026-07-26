@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+
+{% block content %}
+<section class="workspace-hero">
+  <div>
+    <span class="eyebrow">{{ user.get_role_display }} portal</span>
+    <h2>Welcome back, {{ user.get_full_name|default:user.username }}</h2>
+    <p>{{ school_name }} is ready for today's school work.</p>
+  </div>
+</section>
+
+<div class="stat-grid">
+  {% for label, value, url_name in stats %}
+    <article class="stat-card">
+      <span class="stat-label">{{ label }}</span>
+      <span class="stat-value">{{ value }}</span>
+      <a href="{% url url_name %}" class="stat-link">Open</a>
+    </article>
+  {% endfor %}
+</div>
+
+<div class="content-grid">
+  <section class="panel">
+    <div class="panel-header">
+      <h2>Quick actions</h2>
+    </div>
+    <div class="action-list">
+      {% for label, url_name in actions %}
+        <a class="action-row" href="{% url url_name %}">
+          <span>{{ label }}</span>
+          <strong>Open</strong>
+        </a>
+      {% empty %}
+        <p class="text-muted">No actions are available for this role yet.</p>
+      {% endfor %}
+    </div>
+  </section>
+
+  {% if recent_grades or recent_attendance %}
+    <section class="panel">
+      <div class="panel-header">
+        <h2>Recent updates</h2>
+      </div>
+      {% for grade in recent_grades %}
+        <div class="timeline-row">
+          <strong>{{ grade.student.user.get_full_name }}</strong>
+          <span>{{ grade.subject }}: {{ grade.total_score }}% - {{ grade.grade_letter }}</span>
+        </div>
+      {% endfor %}
+      {% for record in recent_attendance %}
+        <div class="timeline-row">
+          <strong>{{ record.student.user.get_full_name }}</strong>
+          <span>{{ record.date }} - {{ record.get_status_display }}</span>
+        </div>
+      {% endfor %}
+    </section>
+  {% endif %}
+</div>
+{% endblock %}
